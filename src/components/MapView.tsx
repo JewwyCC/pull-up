@@ -152,11 +152,11 @@ const MapView = ({ className, hotspots, onSelectHotspot }: MapViewProps) => {
         </div>
       )}
 
-      {/* Placeholder message for non-production implementation */}
+      {/* Placeholder message */}
       <div className="absolute bottom-4 left-4 text-xs text-white/70 bg-black/30 rounded-md px-2 py-1">
         <div className="flex items-center gap-1">
           <Map className="w-3 h-3" />
-          <span>Simulated Map View</span>
+          <span>Simulated Map View - Try Mapbox for a real map</span>
         </div>
       </div>
     </div>

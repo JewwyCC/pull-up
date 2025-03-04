@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter, MapPin, Clock, Sparkles, Activity, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
-import MapView from '@/components/MapView';
+import MapboxMap from '@/components/MapboxMap';
 import EventCard, { Event } from '@/components/EventCard';
 
 // Mock data
@@ -86,22 +86,28 @@ const Explore = () => {
   const [selectedHotspot, setSelectedHotspot] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('list');
+  const [mapboxToken, setMapboxToken] = useState<string>('');
 
   const handleSelectHotspot = (id: string) => {
     setSelectedHotspot(id);
   };
 
-  // Filter events based on category
   const filteredEvents = activeCategory === 'all' 
     ? mockEvents 
     : mockEvents.filter(event => 
         event.category?.toLowerCase() === activeCategory.toLowerCase()
       );
   
-  // Filter events for the selected hotspot
   const hotspotEvents = selectedHotspot 
     ? filteredEvents.slice(0, Math.min(filteredEvents.length, 3)) 
     : [];
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('mapbox_token');
+    if (storedToken) {
+      setMapboxToken(storedToken);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen pt-6 pb-24 px-4 max-w-2xl mx-auto">
@@ -206,7 +212,7 @@ const Explore = () => {
         
         <TabsContent value="map" className="animate-fade-in">
           <div className="mb-6">
-            <MapView 
+            <MapboxMap 
               hotspots={mockHotspots} 
               onSelectHotspot={handleSelectHotspot}
               className="w-full h-[400px] rounded-lg overflow-hidden"
