@@ -1,23 +1,9 @@
-
 import React from 'react';
 import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PullupButton from './PullupButton';
 import { Link } from 'react-router-dom';
-
-export type Event = {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  time: string;
-  date: string;
-  attendees: number;
-  image?: string;
-  distance?: string;
-  category?: string;
-  trending?: boolean;
-};
+import { Event } from '@/data/mockData';
 
 interface EventCardProps {
   event: Event;
