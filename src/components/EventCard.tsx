@@ -48,7 +48,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
           )}
           {event.category && (
             <div className="absolute top-3 left-3">
-              <span className="bg-white/80 backdrop-blur-sm text-xs px-3 py-1 rounded-full font-medium">
+              <span className="bg-black/50 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium">
                 {event.category}
               </span>
             </div>

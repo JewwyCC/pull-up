@@ -1,21 +1,20 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Map, Users, User } from 'lucide-react';
+import { Map, Users, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Navbar = () => {
   const location = useLocation();
   
   const navItems = [
-    { path: '/', icon: Home, label: 'Home' },
     { path: '/explore', icon: Map, label: 'Explore' },
     { path: '/community', icon: Users, label: 'Community' },
     { path: '/profile', icon: User, label: 'Profile' },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around p-4 bg-white/80 backdrop-blur-xl border-t border-border shadow-sm animate-fade-in">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around p-4 bg-card/80 backdrop-blur-xl border-t border-border shadow-lg animate-fade-in">
       {navItems.map((item) => (
         <Link
           key={item.path}

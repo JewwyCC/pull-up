@@ -1,11 +1,14 @@
 
 import React, { useState } from 'react';
-import { Search, Filter, MapPin } from 'lucide-react';
+import { Search, Filter, MapPin, Clock, Sparkles, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import MapView from '@/components/MapView';
 import EventCard, { Event } from '@/components/EventCard';
+import PullupButton from '@/components/PullupButton';
 
 // Mock data
 const mockHotspots = [
@@ -68,44 +71,124 @@ const mockEvents: Event[] = [
   }
 ];
 
+const categories = [
+  { id: 'all', name: 'All' },
+  { id: 'social', name: 'Social' },
+  { id: 'sports', name: 'Sports' },
+  { id: 'wellness', name: 'Wellness' },
+  { id: 'tech', name: 'Tech' },
+  { id: 'arts', name: 'Arts' }
+];
+
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedHotspot, setSelectedHotspot] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState('all');
 
   const handleSelectHotspot = (id: string) => {
     setSelectedHotspot(id);
   };
 
+  // Filter events based on category
+  const filteredEvents = activeCategory === 'all' 
+    ? mockEvents 
+    : mockEvents.filter(event => 
+        event.category?.toLowerCase() === activeCategory.toLowerCase()
+      );
+
   return (
     <div className="min-h-screen pt-6 pb-24 px-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Explore</h1>
+      <h1 className="text-2xl font-bold mb-6">Pullup Nearby</h1>
       
       <div className="mb-6 flex gap-2">
         <Input
           type="search"
           placeholder="Search for events..."
-          className="flex-grow bg-white shadow-sm border-input"
+          className="flex-grow bg-card shadow-sm border-input"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           prefix={<Search className="w-4 h-4 text-muted-foreground" />}
         />
-        <Button variant="outline" size="icon" className="bg-white">
+        <Button variant="outline" size="icon" className="bg-card">
           <Filter className="w-4 h-4" />
         </Button>
       </div>
+
+      <div className="mb-6 overflow-x-auto pb-2">
+        <div className="flex gap-2 w-max">
+          {categories.map((category) => (
+            <Badge
+              key={category.id}
+              variant={activeCategory === category.id ? "default" : "outline"}
+              className={cn(
+                "px-4 py-1.5 cursor-pointer transition-all",
+                activeCategory === category.id ? "bg-primary" : "bg-card hover:bg-secondary"
+              )}
+              onClick={() => setActiveCategory(category.id)}
+            >
+              {category.name}
+            </Badge>
+          ))}
+        </div>
+      </div>
       
-      <Tabs defaultValue="map" className="mb-6">
-        <TabsList className="grid grid-cols-2 w-full mb-4">
-          <TabsTrigger value="map">Map View</TabsTrigger>
+      <Tabs defaultValue="list" className="mb-6">
+        <TabsList className="grid grid-cols-2 w-full mb-4 bg-muted">
           <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="map">Map View</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="list" className="animate-fade-in">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                <h2 className="font-semibold text-lg">For You</h2>
+              </div>
+            </div>
+            
+            <div className="grid gap-4">
+              {filteredEvents.map(event => (
+                <EventCard key={event.id} event={event} />
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-primary" />
+                <h2 className="font-semibold text-lg">Happening Now</h2>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {filteredEvents.slice(0, 2).map((event) => (
+                <div key={`now-${event.id}`} className="glass-card rounded-xl p-4 animate-scale-in">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="w-4 h-4 text-accent" />
+                    <span className="text-xs font-medium">{event.category}</span>
+                  </div>
+                  <h3 className="font-medium text-sm mb-2 line-clamp-2">{event.title}</h3>
+                  <div className="flex items-center text-xs text-muted-foreground mb-3">
+                    <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                    <span className="truncate">{event.location}</span>
+                  </div>
+                  <Button size="sm" variant="outline" className="w-full text-xs py-1 h-8">
+                    View Details
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </TabsContent>
         
         <TabsContent value="map" className="animate-fade-in">
           <div className="mb-6">
             <MapView 
               hotspots={mockHotspots} 
               onSelectHotspot={handleSelectHotspot}
-              className="w-full h-[400px]"
+              className="w-full h-[400px] rounded-lg overflow-hidden"
             />
           </div>
           
@@ -122,7 +205,7 @@ const Explore = () => {
               </div>
               
               <div className="grid gap-4">
-                {mockEvents
+                {filteredEvents
                   .slice(0, 2)
                   .map(event => (
                     <EventCard key={event.id} event={event} />
@@ -130,14 +213,6 @@ const Explore = () => {
               </div>
             </div>
           )}
-        </TabsContent>
-        
-        <TabsContent value="list" className="animate-fade-in">
-          <div className="grid gap-4">
-            {mockEvents.map(event => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
         </TabsContent>
       </Tabs>
     </div>
