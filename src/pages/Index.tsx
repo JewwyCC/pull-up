@@ -1,11 +1,152 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Activity, Clock, Sparkles, MapPin } from 'lucide-react';
+import EventCard, { Event } from '@/components/EventCard';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+
+const mockEvents: Event[] = [
+  {
+    id: '1',
+    title: 'Morning Coffee Meetup',
+    description: 'Start your day with great coffee and even better conversations. Casual networking for professionals.',
+    location: 'Brew & Bean, Downtown',
+    time: '8:00 AM',
+    date: 'Today',
+    attendees: 12,
+    distance: '0.8 mi',
+    category: 'Social',
+    trending: true,
+    image: 'https://images.unsplash.com/photo-1485182708500-e8f1f318ba72?auto=format&fit=crop&q=80'
+  },
+  {
+    id: '2',
+    title: 'Pickup Basketball Game',
+    description: 'Join us for a friendly 3v3 basketball game at the park. All skill levels welcome!',
+    location: 'Central Park Courts',
+    time: '5:30 PM',
+    date: 'Today',
+    attendees: 8,
+    distance: '1.2 mi',
+    category: 'Sports',
+    image: 'https://images.unsplash.com/photo-1546519638-68e109acd27d?auto=format&fit=crop&q=80'
+  },
+  {
+    id: '3',
+    title: 'Sunset Beach Yoga',
+    description: 'Relax and recharge with a guided yoga session as the sun sets over the ocean.',
+    location: 'Venice Beach',
+    time: '7:00 PM',
+    date: 'Today',
+    attendees: 15,
+    distance: '2.5 mi',
+    category: 'Wellness',
+    trending: true,
+    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80'
+  }
+];
+
+const categories = [
+  { id: 'all', name: 'All' },
+  { id: 'social', name: 'Social' },
+  { id: 'sports', name: 'Sports' },
+  { id: 'wellness', name: 'Wellness' },
+  { id: 'tech', name: 'Tech' },
+  { id: 'arts', name: 'Arts' }
+];
 
 const Index = () => {
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen pt-6 pb-24 px-4 max-w-2xl mx-auto">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <span className="text-xs font-medium text-primary">Los Angeles</span>
+          <h1 className="text-2xl font-bold">Discover Events</h1>
+        </div>
+        <div className="relative">
+          <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+            <span className="font-medium">LA</span>
+          </div>
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full border-2 border-background"></span>
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <Input
+          type="search"
+          placeholder="Search for events..."
+          className="w-full bg-white shadow-sm border-input"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      <div className="mb-6 overflow-x-auto pb-2">
+        <div className="flex gap-2 w-max">
+          {categories.map((category) => (
+            <Badge
+              key={category.id}
+              variant={activeCategory === category.id ? "default" : "outline"}
+              className={cn(
+                "px-4 py-1.5 cursor-pointer transition-all",
+                activeCategory === category.id ? "bg-primary" : "bg-white hover:bg-secondary"
+              )}
+              onClick={() => setActiveCategory(category.id)}
+            >
+              {category.name}
+            </Badge>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h2 className="font-semibold text-lg">For You</h2>
+          </div>
+          <Link to="/explore" className="text-sm text-primary font-medium">View all</Link>
+        </div>
+
+        <div className="grid gap-4">
+          {mockEvents.map((event) => (
+            <EventCard key={event.id} event={event} />
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-primary" />
+            <h2 className="font-semibold text-lg">Happening Now</h2>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {mockEvents.slice(0, 2).map((event) => (
+            <div key={`now-${event.id}`} className="glass-card rounded-xl p-4 animate-scale-in">
+              <div className="flex items-center gap-2 mb-2">
+                <Activity className="w-4 h-4 text-accent" />
+                <span className="text-xs font-medium">{event.category}</span>
+              </div>
+              <h3 className="font-medium text-sm mb-2 line-clamp-2">{event.title}</h3>
+              <div className="flex items-center text-xs text-muted-foreground mb-3">
+                <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                <span className="truncate">{event.location}</span>
+              </div>
+              <Button size="sm" variant="outline" className="w-full text-xs py-1 h-8">
+                View Details
+              </Button>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
