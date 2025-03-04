@@ -94,4 +94,8 @@
   .neo-blur {
     @apply backdrop-blur-2xl bg-black/40 border border-white/10;
   }
+  
+  .drop-shadow-glow {
+    filter: drop-shadow(0 0 8px rgba(0, 149, 255, 0.8));
+  }
 }

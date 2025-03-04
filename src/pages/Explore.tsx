@@ -15,6 +15,8 @@ const mockHotspots = [
   { id: '2', name: 'Santa Monica', latitude: 34.024212, longitude: -118.496475, eventCount: 8 },
   { id: '3', name: 'Silver Lake', latitude: 34.083527, longitude: -118.270455, eventCount: 5 },
   { id: '4', name: 'Venice', latitude: 33.985047, longitude: -118.469018, eventCount: 9 },
+  { id: '5', name: 'Echo Park', latitude: 34.072601, longitude: -118.260005, eventCount: 6 },
+  { id: '6', name: 'Arts District', latitude: 34.040434, longitude: -118.231317, eventCount: 7 },
 ];
 
 const mockEvents: Event[] = [
@@ -83,6 +85,7 @@ const Explore = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedHotspot, setSelectedHotspot] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState('all');
+  const [activeTab, setActiveTab] = useState('list');
 
   const handleSelectHotspot = (id: string) => {
     setSelectedHotspot(id);
@@ -94,6 +97,11 @@ const Explore = () => {
     : mockEvents.filter(event => 
         event.category?.toLowerCase() === activeCategory.toLowerCase()
       );
+  
+  // Filter events for the selected hotspot
+  const hotspotEvents = selectedHotspot 
+    ? filteredEvents.slice(0, Math.min(filteredEvents.length, 3)) 
+    : [];
 
   return (
     <div className="min-h-screen pt-6 pb-24 px-4 max-w-2xl mx-auto">
@@ -140,7 +148,12 @@ const Explore = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="list" className="mb-6">
+      <Tabs 
+        defaultValue="list" 
+        className="mb-6"
+        value={activeTab}
+        onValueChange={setActiveTab}
+      >
         <TabsList className="grid grid-cols-2 w-full mb-4 bg-muted">
           <TabsTrigger value="list">List View</TabsTrigger>
           <TabsTrigger value="map">Map View</TabsTrigger>
@@ -213,11 +226,9 @@ const Explore = () => {
               </div>
               
               <div className="grid gap-4">
-                {filteredEvents
-                  .slice(0, 2)
-                  .map(event => (
-                    <EventCard key={event.id} event={event} />
-                  ))}
+                {hotspotEvents.map(event => (
+                  <EventCard key={event.id} event={event} />
+                ))}
               </div>
             </div>
           )}
