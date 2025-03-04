@@ -8,6 +8,8 @@ import Explore from "./pages/Explore";
 import Community from "./pages/Community";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import EventDetail from "./pages/EventDetail";
+import CreateEvent from "./pages/CreateEvent";
 import Navbar from "./components/Navbar";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/explore" replace />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/event/:eventId" element={<EventDetail />} />
+            <Route path="/create-event" element={<CreateEvent />} />
             <Route path="/community" element={<Community />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />

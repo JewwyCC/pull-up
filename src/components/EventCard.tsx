@@ -3,6 +3,7 @@ import React from 'react';
 import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PullupButton from './PullupButton';
+import { Link } from 'react-router-dom';
 
 export type Event = {
   id: string;
@@ -32,7 +33,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
       )}
     >
       {event.image && (
-        <div className="relative h-40 w-full overflow-hidden">
+        <Link to={`/event/${event.id}`} className="block relative h-40 w-full overflow-hidden">
           <img 
             src={event.image} 
             alt={event.title} 
@@ -53,11 +54,13 @@ const EventCard = ({ event, className }: EventCardProps) => {
               </span>
             </div>
           )}
-        </div>
+        </Link>
       )}
 
       <div className="p-5">
-        <h3 className="font-semibold text-lg mb-2 text-balance">{event.title}</h3>
+        <Link to={`/event/${event.id}`} className="block">
+          <h3 className="font-semibold text-lg mb-2 text-balance hover:text-primary transition-colors">{event.title}</h3>
+        </Link>
         <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{event.description}</p>
         
         <div className="flex flex-col gap-2 mb-4">

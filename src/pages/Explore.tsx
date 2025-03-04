@@ -1,14 +1,13 @@
-
 import React, { useState } from 'react';
-import { Search, Filter, MapPin, Clock, Sparkles, Activity } from 'lucide-react';
+import { Search, Filter, MapPin, Clock, Sparkles, Activity, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 import MapView from '@/components/MapView';
 import EventCard, { Event } from '@/components/EventCard';
-import PullupButton from '@/components/PullupButton';
 
 // Mock data
 const mockHotspots = [
@@ -98,7 +97,16 @@ const Explore = () => {
 
   return (
     <div className="min-h-screen pt-6 pb-24 px-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Pullup Nearby</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Pullup Nearby</h1>
+        
+        <Link to="/create-event">
+          <Button size="sm" className="rounded-lg">
+            <Plus className="w-4 h-4 mr-1" />
+            Create
+          </Button>
+        </Link>
+      </div>
       
       <div className="mb-6 flex gap-2">
         <Input
