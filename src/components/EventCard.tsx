@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -8,9 +9,10 @@ import { Event } from '@/data/mockData';
 interface EventCardProps {
   event: Event;
   className?: string;
+  onJoinEvent?: (eventId: string) => void;
 }
 
-const EventCard = ({ event, className }: EventCardProps) => {
+const EventCard = ({ event, className, onJoinEvent }: EventCardProps) => {
   return (
     <div 
       className={cn(
@@ -25,6 +27,10 @@ const EventCard = ({ event, className }: EventCardProps) => {
             alt={event.title} 
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
             loading="lazy"
+            onError={(e) => {
+              // Fallback image if loading fails
+              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1567634065309-a53e0014a26e?auto=format&fit=crop&q=80';
+            }}
           />
           {event.trending && (
             <div className="absolute top-3 right-3">
@@ -78,7 +84,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
           </div>
         </div>
         
-        <PullupButton eventId={event.id} />
+        <PullupButton eventId={event.id} onJoinEvent={onJoinEvent} />
       </div>
     </div>
   );

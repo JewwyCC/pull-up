@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   Calendar, Clock, MapPin, Users, ArrowLeft, 
@@ -112,6 +112,13 @@ const mockEventData = {
 const EventDetail = () => {
   const { eventId } = useParams();
   const [showAllParticipants, setShowAllParticipants] = useState(false);
+  const [joinedEvents, setJoinedEvents] = useState<string[]>([]);
+  
+  // Load joined events from localStorage
+  useEffect(() => {
+    const storedJoinedEvents = JSON.parse(localStorage.getItem('joinedEvents') || '[]');
+    setJoinedEvents(storedJoinedEvents);
+  }, []);
   
   // In a real app, this would fetch from an API
   const event = eventId ? mockEventData[eventId as keyof typeof mockEventData] : null;
@@ -137,6 +144,14 @@ const EventDetail = () => {
     });
   };
   
+  const handleJoinEvent = (eventId: string) => {
+    if (!joinedEvents.includes(eventId)) {
+      const updatedJoinedEvents = [...joinedEvents, eventId];
+      setJoinedEvents(updatedJoinedEvents);
+      localStorage.setItem('joinedEvents', JSON.stringify(updatedJoinedEvents));
+    }
+  };
+  
   const MAX_VISIBLE_PARTICIPANTS = 5;
   const visibleParticipants = showAllParticipants 
     ? event.participants 
@@ -149,6 +164,10 @@ const EventDetail = () => {
           src={event.image} 
           alt={event.title} 
           className="w-full h-full object-cover opacity-80"
+          onError={(e) => {
+            // Fallback image if loading fails
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1567634065309-a53e0014a26e?auto=format&fit=crop&q=80';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
         
@@ -253,7 +272,11 @@ const EventDetail = () => {
           </div>
           
           <div className="flex gap-3">
-            <PullupButton eventId={event.id} className="flex-1 py-3 rounded-xl" />
+            <PullupButton 
+              eventId={event.id} 
+              className="flex-1 py-3 rounded-xl" 
+              onJoinEvent={handleJoinEvent}
+            />
             
             <Button variant="outline" className="rounded-xl py-3">
               <MessageCircle className="w-5 h-5 mr-2" />

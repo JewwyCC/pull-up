@@ -47,7 +47,7 @@ export const mockEvents: Event[] = [
     attendees: 8,
     distance: '1.2 mi',
     category: 'Sports',
-    image: 'https://images.unsplash.com/photo-1546519638-68e109acd27d?auto=format&fit=crop&q=80'
+    image: 'https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?auto=format&fit=crop&q=80'
   },
   {
     id: '3',

@@ -10,13 +10,15 @@ interface MapViewProps {
   setSelectedHotspot: (id: string) => void;
   hotspotEvents: Event[];
   mapboxToken: string;
+  showHeatMap?: boolean;
 }
 
 const MapView = ({ 
   selectedHotspot, 
   setSelectedHotspot, 
   hotspotEvents,
-  mapboxToken
+  mapboxToken,
+  showHeatMap
 }: MapViewProps) => {
   return (
     <div className="animate-fade-in">
@@ -25,6 +27,7 @@ const MapView = ({
           hotspots={mockHotspots} 
           onSelectHotspot={setSelectedHotspot}
           className="w-full h-[400px] rounded-lg overflow-hidden"
+          showHeatMap={showHeatMap}
         />
       </div>
       

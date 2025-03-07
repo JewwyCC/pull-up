@@ -17,9 +17,10 @@ interface MapboxMapProps {
   className?: string;
   hotspots: Hotspot[];
   onSelectHotspot?: (id: string) => void;
+  showHeatMap?: boolean;
 }
 
-const MapboxMap = ({ className, hotspots, onSelectHotspot }: MapboxMapProps) => {
+const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }: MapboxMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<{[key: string]: mapboxgl.Marker}>({});
@@ -114,13 +115,87 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot }: MapboxMapProps) => 
     });
   }, [userLocation, isMapLoaded]);
 
-  // Add hotspot markers
+  // Add hotspot markers and heat map
   useEffect(() => {
     if (!map.current || !isMapLoaded) return;
 
     // Remove existing markers
     Object.values(markers.current).forEach(marker => marker.remove());
     markers.current = {};
+
+    // Add heat map if enabled
+    if (showHeatMap && map.current) {
+      // Remove existing heat map layer if it exists
+      if (map.current.getLayer('heatmap-layer')) {
+        map.current.removeLayer('heatmap-layer');
+      }
+      
+      // Remove existing heat map source if it exists
+      if (map.current.getSource('heatmap-source')) {
+        map.current.removeSource('heatmap-source');
+      }
+      
+      // Convert hotspots to GeoJSON for heat map
+      const heatMapData = {
+        type: 'FeatureCollection',
+        features: hotspots.map(hotspot => ({
+          type: 'Feature',
+          properties: {
+            intensity: hotspot.eventCount / 2, // Scale the intensity based on event count
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [hotspot.longitude, hotspot.latitude],
+          },
+        })),
+      };
+      
+      // Add heat map source and layer
+      map.current.addSource('heatmap-source', {
+        type: 'geojson',
+        data: heatMapData as any,
+      });
+      
+      map.current.addLayer({
+        id: 'heatmap-layer',
+        type: 'heatmap',
+        source: 'heatmap-source',
+        paint: {
+          // Increase weight based on event count
+          'heatmap-weight': ['get', 'intensity'],
+          // Increase intensity at higher zoom levels
+          'heatmap-intensity': 1.5,
+          // Color ramp for heatmap from accent to primary color
+          'heatmap-color': [
+            'interpolate',
+            ['linear'],
+            ['heatmap-density'],
+            0, 'rgba(33, 150, 243, 0)',
+            0.2, 'rgba(33, 150, 243, 0.2)',
+            0.4, 'rgba(33, 150, 243, 0.4)',
+            0.6, 'rgba(33, 150, 243, 0.6)',
+            0.8, 'rgba(236, 72, 153, 0.8)',
+            1, 'rgba(236, 72, 153, 1)'
+          ],
+          // Radius decreases as zoom increases
+          'heatmap-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            10, 20,
+            14, 10
+          ],
+          // Opacity decreases as zoom increases
+          'heatmap-opacity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            10, 0.8,
+            14, 0.6
+          ],
+        },
+      } as any);
+    }
 
     // Add hotspot markers
     hotspots.forEach(hotspot => {
@@ -153,7 +228,7 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot }: MapboxMapProps) => 
 
       markers.current[hotspot.id] = marker;
     });
-  }, [hotspots, selectedHotspot, isMapLoaded]);
+  }, [hotspots, selectedHotspot, isMapLoaded, showHeatMap]);
 
   const handleSelectHotspot = (id: string) => {
     setSelectedHotspot(id);

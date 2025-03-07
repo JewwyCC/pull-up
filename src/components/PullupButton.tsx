@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowUp, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -8,12 +8,21 @@ import { useNavigate } from 'react-router-dom';
 interface PullupButtonProps {
   eventId: string;
   className?: string;
+  onJoinEvent?: (eventId: string) => void;
 }
 
-const PullupButton = ({ eventId, className }: PullupButtonProps) => {
+const PullupButton = ({ eventId, className, onJoinEvent }: PullupButtonProps) => {
   const [isPulledUp, setIsPulledUp] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
+
+  // Check localStorage on component mount to see if user already joined this event
+  useEffect(() => {
+    const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents') || '[]');
+    if (joinedEvents.includes(eventId)) {
+      setIsPulledUp(true);
+    }
+  }, [eventId]);
 
   const handlePullup = () => {
     if (isPulledUp) {
@@ -28,6 +37,19 @@ const PullupButton = ({ eventId, className }: PullupButtonProps) => {
     setTimeout(() => {
       setIsPulledUp(true);
       setIsAnimating(false);
+      
+      // Store joined event in localStorage
+      const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents') || '[]');
+      if (!joinedEvents.includes(eventId)) {
+        joinedEvents.push(eventId);
+        localStorage.setItem('joinedEvents', JSON.stringify(joinedEvents));
+      }
+      
+      // Call the onJoinEvent callback if provided
+      if (onJoinEvent) {
+        onJoinEvent(eventId);
+      }
+      
       toast.success("You've joined this event!", {
         description: "Check your calendar for details",
         duration: 3000,

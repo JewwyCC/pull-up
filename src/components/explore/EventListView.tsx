@@ -4,12 +4,14 @@ import { Sparkles, Clock, Activity, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import EventCard from '@/components/EventCard';
 import { Event } from '@/data/mockData';
+import { Link } from 'react-router-dom';
 
 interface EventListViewProps {
   filteredEvents: Event[];
+  onJoinEvent?: (eventId: string) => void;
 }
 
-const EventListView = ({ filteredEvents }: EventListViewProps) => {
+const EventListView = ({ filteredEvents, onJoinEvent }: EventListViewProps) => {
   return (
     <div className="animate-fade-in">
       <div className="mb-8">
@@ -22,7 +24,7 @@ const EventListView = ({ filteredEvents }: EventListViewProps) => {
         
         <div className="grid gap-4">
           {filteredEvents.map(event => (
-            <EventCard key={event.id} event={event} />
+            <EventCard key={event.id} event={event} onJoinEvent={onJoinEvent} />
           ))}
         </div>
       </div>
@@ -47,9 +49,11 @@ const EventListView = ({ filteredEvents }: EventListViewProps) => {
                 <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
                 <span className="truncate">{event.location}</span>
               </div>
-              <Button size="sm" variant="outline" className="w-full text-xs py-1 h-8">
-                View Details
-              </Button>
+              <Link to={`/event/${event.id}`}>
+                <Button size="sm" variant="outline" className="w-full text-xs py-1 h-8">
+                  View Details
+                </Button>
+              </Link>
             </div>
           ))}
         </div>
