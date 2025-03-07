@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, Clock, Sparkles, MapPin } from 'lucide-react';
-import EventCard, { Event } from '@/components/EventCard';
+import EventCard from '@/components/EventCard';
+import { Event } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
