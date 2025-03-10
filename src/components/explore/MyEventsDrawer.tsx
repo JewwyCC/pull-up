@@ -97,7 +97,7 @@ const MyEventCard = ({ event }: { event: Event }) => {
           <h4 className="font-medium text-sm line-clamp-1">{event.title}</h4>
           
           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-            <span>{event.date} • {event.time}</span>
+            <span>{event.endTime}</span>
           </div>
           
           <div className="flex items-center mt-2">
