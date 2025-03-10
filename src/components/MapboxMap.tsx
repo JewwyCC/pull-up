@@ -44,10 +44,20 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
         (error) => {
           console.error("Error getting location:", error);
           setLocationError("Couldn't access your location");
+          // Default to UC Irvine if location access is denied
+          setUserLocation({
+            lat: 33.6405,
+            lng: -117.8443
+          });
         }
       );
     } else {
       setLocationError("Geolocation is not supported by your browser");
+      // Default to UC Irvine if geolocation not supported
+      setUserLocation({
+        lat: 33.6405,
+        lng: -117.8443
+      });
     }
   }, []);
 
@@ -60,7 +70,7 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/dark-v11', // Dark theme
-      center: userLocation ? [userLocation.lng, userLocation.lat] : [-118.243683, 34.052235], // Default to LA if no user location
+      center: userLocation ? [userLocation.lng, userLocation.lat] : [-117.8443, 33.6405], // Default to UC Irvine if no user location
       zoom: 12,
     });
 
@@ -89,13 +99,13 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
   useEffect(() => {
     if (!map.current || !isMapLoaded || !userLocation) return;
 
-    // Add user location marker
+    // Add user location marker with pulsing effect
     const userMarkerElement = document.createElement('div');
     userMarkerElement.className = 'user-location-marker';
     userMarkerElement.innerHTML = `
       <div class="relative">
-        <div class="w-4 h-4 bg-accent rounded-full animate-ping absolute"></div>
-        <div class="w-6 h-6 bg-primary rounded-full flex items-center justify-center z-10 relative">
+        <div class="w-6 h-6 bg-accent/30 rounded-full animate-ping absolute"></div>
+        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center z-10 relative border-2 border-white shadow-lg">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
             <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
           </svg>
@@ -141,7 +151,7 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
         features: hotspots.map(hotspot => ({
           type: 'Feature',
           properties: {
-            intensity: hotspot.eventCount / 2, // Scale the intensity based on event count
+            intensity: hotspot.eventCount / 1.5, // Scale the intensity based on event count
           },
           geometry: {
             type: 'Point',
@@ -164,53 +174,56 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
           // Increase weight based on event count
           'heatmap-weight': ['get', 'intensity'],
           // Increase intensity at higher zoom levels
-          'heatmap-intensity': 1.5,
-          // Color ramp for heatmap from accent to primary color
+          'heatmap-intensity': 1.8, // Intensified
+          // Color ramp for heatmap from accent to primary color - made more vibrant
           'heatmap-color': [
             'interpolate',
             ['linear'],
             ['heatmap-density'],
             0, 'rgba(33, 150, 243, 0)',
-            0.2, 'rgba(33, 150, 243, 0.2)',
-            0.4, 'rgba(33, 150, 243, 0.4)',
-            0.6, 'rgba(33, 150, 243, 0.6)',
-            0.8, 'rgba(236, 72, 153, 0.8)',
-            1, 'rgba(236, 72, 153, 1)'
+            0.1, 'rgba(33, 150, 243, 0.3)',
+            0.3, 'rgba(63, 81, 181, 0.5)',
+            0.5, 'rgba(156, 39, 176, 0.7)', 
+            0.7, 'rgba(233, 30, 99, 0.85)',
+            0.9, 'rgba(236, 72, 153, 0.95)',
+            1, 'rgba(244, 67, 54, 1)'
           ],
-          // Radius decreases as zoom increases
+          // Radius increases for better visibility
           'heatmap-radius': [
             'interpolate',
             ['linear'],
             ['zoom'],
-            10, 20,
-            14, 10
+            8, 25, // Larger radius at low zoom
+            12, 20,
+            16, 15
           ],
           // Opacity decreases as zoom increases
           'heatmap-opacity': [
             'interpolate',
             ['linear'],
             ['zoom'],
-            10, 0.8,
-            14, 0.6
+            8, 0.9, // More visible at low zoom
+            14, 0.7
           ],
         },
       } as any);
     }
 
-    // Add hotspot markers
+    // Add hotspot markers with improved visuals
     hotspots.forEach(hotspot => {
       // Create custom marker element
       const markerElement = document.createElement('div');
       markerElement.className = 'hotspot-marker';
       markerElement.innerHTML = `
-        <div class="relative cursor-pointer">
-          <div class="w-6 h-6 text-primary ${selectedHotspot === hotspot.id ? 'animate-pulse' : 'animate-float'}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
+        <div class="relative cursor-pointer group">
+          <div class="absolute -inset-2 bg-primary/10 rounded-full ${selectedHotspot === hotspot.id ? 'animate-ping opacity-70' : ''} group-hover:animate-ping opacity-0 group-hover:opacity-30 transition-opacity"></div>
+          <div class="w-8 h-8 text-primary drop-shadow-lg transform transition-transform group-hover:scale-110 ${selectedHotspot === hotspot.id ? 'scale-110 animate-pulse' : 'animate-float'}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" fill="${selectedHotspot === hotspot.id ? 'rgba(236, 72, 153, 0.2)' : 'rgba(33, 150, 243, 0.1)'}"></path>
+              <circle cx="12" cy="10" r="3" fill="${selectedHotspot === hotspot.id ? 'rgba(236, 72, 153, 0.8)' : 'rgba(33, 150, 243, 0.5)'}"></circle>
             </svg>
           </div>
-          <div class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center text-xs font-medium ${selectedHotspot === hotspot.id ? 'ring-2 ring-white' : ''}">
+          <div class="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-xs font-medium shadow-md border border-white ${selectedHotspot === hotspot.id ? 'ring-2 ring-white scale-110' : ''} transform transition-transform group-hover:scale-110">
             ${hotspot.eventCount}
           </div>
         </div>
@@ -285,10 +298,15 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
 
       {/* Location error message */}
       {locationError && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-card/90 backdrop-blur-sm text-white px-4 py-2 rounded-full shadow-lg text-sm">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-card/90 backdrop-blur-sm text-foreground px-4 py-2 rounded-full shadow-lg text-sm">
           {locationError}
         </div>
       )}
+
+      {/* Map instruction hint */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-card/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg text-sm text-muted-foreground">
+        <span className="animate-pulse">Click on hotspots to see events</span>
+      </div>
     </div>
   );
 };

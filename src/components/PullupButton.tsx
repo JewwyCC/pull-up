@@ -43,6 +43,9 @@ const PullupButton = ({ eventId, className, onJoinEvent }: PullupButtonProps) =>
       if (!joinedEvents.includes(eventId)) {
         joinedEvents.push(eventId);
         localStorage.setItem('joinedEvents', JSON.stringify(joinedEvents));
+        
+        // Automatically lock browsing
+        localStorage.setItem('browsing_locked', 'true');
       }
       
       // Call the onJoinEvent callback if provided
@@ -51,7 +54,7 @@ const PullupButton = ({ eventId, className, onJoinEvent }: PullupButtonProps) =>
       }
       
       toast.success("You've joined this event!", {
-        description: "Check your calendar for details",
+        description: "Browsing has been locked to your events. You can unlock it any time.",
         duration: 3000,
       });
       

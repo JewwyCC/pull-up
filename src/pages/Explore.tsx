@@ -35,7 +35,7 @@ const Explore = () => {
     ? filteredEvents.slice(0, Math.min(filteredEvents.length, 3)) 
     : [];
 
-  // Load mapbox token and joined events from localStorage
+  // Load mapbox token, joined events, and browsing lock state from localStorage
   useEffect(() => {
     const storedToken = localStorage.getItem('mapbox_token');
     if (storedToken) {
@@ -44,6 +44,10 @@ const Explore = () => {
     
     const storedJoinedEvents = JSON.parse(localStorage.getItem('joinedEvents') || '[]');
     setJoinedEvents(storedJoinedEvents);
+    
+    // Check if browsing is locked
+    const isBrowsingLocked = localStorage.getItem('browsing_locked') === 'true';
+    setIsLocked(isBrowsingLocked);
     
     // If user has joined events and hasn't dismissed the drawer, open it
     if (storedJoinedEvents.length > 0) {
@@ -58,6 +62,10 @@ const Explore = () => {
       setJoinedEvents(updatedJoinedEvents);
       localStorage.setItem('joinedEvents', JSON.stringify(updatedJoinedEvents));
       
+      // Lock browsing automatically
+      setIsLocked(true);
+      localStorage.setItem('browsing_locked', 'true');
+      
       // Open my events drawer
       setIsMyEventsOpen(true);
     }
@@ -65,9 +73,11 @@ const Explore = () => {
 
   // Toggle lock for browsing
   const handleToggleLock = () => {
-    setIsLocked(!isLocked);
+    const newLockedState = !isLocked;
+    setIsLocked(newLockedState);
+    localStorage.setItem('browsing_locked', newLockedState.toString());
     
-    if (!isLocked) {
+    if (newLockedState) {
       toast.info("Browsing locked", {
         description: "You'll only see events you've signed up for until you unlock browsing",
       });
