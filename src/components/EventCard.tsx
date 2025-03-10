@@ -20,6 +20,20 @@ const EventCard = ({ event, className, onJoinEvent }: EventCardProps) => {
         className
       )}
     >
+      {event.image && (
+        <div className="w-full h-40 overflow-hidden">
+          <img 
+            src={event.image} 
+            alt={event.title} 
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Fallback image if loading fails
+              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1567634065309-a53e0014a26e?auto=format&fit=crop&q=80';
+            }}
+          />
+        </div>
+      )}
+      
       <div className="p-4">
         <Link to={`/event/${event.id}`} className="block">
           <h3 className="font-semibold text-lg mb-2 text-balance hover:text-primary transition-colors">{event.title}</h3>
