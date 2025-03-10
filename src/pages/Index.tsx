@@ -13,38 +13,35 @@ const mockEvents: Event[] = [
   {
     id: '1',
     title: 'Morning Coffee Meetup',
-    description: 'Start your day with great coffee and even better conversations. Casual networking for professionals.',
     location: 'Brew & Bean, Downtown',
-    time: '8:00 AM',
-    date: 'Today',
-    attendees: 12,
     distance: '0.8 mi',
     category: 'Social',
+    attendees: 12,
+    duration: '1 hour',
+    endTime: 'Ends at 9:30 AM',
     trending: true,
     image: 'https://images.unsplash.com/photo-1485182708500-e8f1f318ba72?auto=format&fit=crop&q=80'
   },
   {
     id: '2',
     title: 'Pickup Basketball Game',
-    description: 'Join us for a friendly 3v3 basketball game at the park. All skill levels welcome!',
     location: 'Central Park Courts',
-    time: '5:30 PM',
-    date: 'Today',
-    attendees: 8,
     distance: '1.2 mi',
     category: 'Sports',
-    image: 'https://images.unsplash.com/photo-1546519638-68e109acd27d?auto=format&fit=crop&q=80'
+    attendees: 8,
+    duration: '2 hours',
+    endTime: 'Ends at 7:30 PM',
+    image: 'https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?auto=format&fit=crop&q=80'
   },
   {
     id: '3',
     title: 'Sunset Beach Yoga',
-    description: 'Relax and recharge with a guided yoga session as the sun sets over the ocean.',
     location: 'Venice Beach',
-    time: '7:00 PM',
-    date: 'Today',
-    attendees: 15,
     distance: '2.5 mi',
     category: 'Wellness',
+    attendees: 15,
+    duration: '1 hour',
+    endTime: 'Ends at 8:00 PM',
     trending: true,
     image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80'
   }
@@ -68,7 +65,7 @@ const Index = () => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <span className="text-xs font-medium text-primary">Los Angeles</span>
-          <h1 className="text-2xl font-bold">Discover Events</h1>
+          <h1 className="text-2xl font-bold">Happening Now</h1>
         </div>
         <div className="relative">
           <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
@@ -110,7 +107,7 @@ const Index = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-lg">For You</h2>
+            <h2 className="font-semibold text-lg">Near You</h2>
           </div>
           <Link to="/explore" className="text-sm text-primary font-medium">View all</Link>
         </div>
@@ -126,7 +123,7 @@ const Index = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-lg">Happening Now</h2>
+            <h2 className="font-semibold text-lg">Popular Now</h2>
           </div>
         </div>
 
