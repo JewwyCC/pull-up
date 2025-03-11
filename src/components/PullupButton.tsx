@@ -4,6 +4,7 @@ import { ArrowUp, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { mockEvents } from '@/data/mockData';
 
 interface PullupButtonProps {
   eventId: string;
@@ -23,11 +24,48 @@ const PullupButton = ({ eventId, className, onJoinEvent }: PullupButtonProps) =>
       setIsPulledUp(true);
     }
   }, [eventId]);
+  
+  // Check if event time overlaps with already joined events
+  const checkEventOverlap = () => {
+    const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents') || '[]');
+    const newEvent = mockEvents.find(e => e.id === eventId);
+    if (!newEvent) return false;
+    
+    // Convert event times to comparable values
+    const newEventEndTime = newEvent.endTime.replace('Ends at ', '');
+    
+    // Check if any joined event overlaps with the new event
+    for (const joinedEventId of joinedEvents) {
+      // Don't check against itself
+      if (joinedEventId === eventId) continue;
+      
+      const joinedEvent = mockEvents.find(e => e.id === joinedEventId);
+      if (!joinedEvent) continue;
+      
+      const joinedEventEndTime = joinedEvent.endTime.replace('Ends at ', '');
+      
+      // Simple overlap check - in a real app this would be more sophisticated
+      if (newEventEndTime === joinedEventEndTime) {
+        return true; // Events overlap
+      }
+    }
+    
+    return false; // No overlap
+  };
 
   const handlePullup = () => {
     if (isPulledUp) {
       // If already joined, navigate to event page
       navigate(`/event/${eventId}`);
+      return;
+    }
+    
+    // Check for time conflicts
+    if (checkEventOverlap()) {
+      toast.error("Cannot join this event", {
+        description: "You already have another event scheduled at this time",
+        duration: 3000,
+      });
       return;
     }
     

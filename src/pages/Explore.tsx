@@ -30,10 +30,8 @@ const Explore = () => {
         event.category?.toLowerCase() === activeCategory.toLowerCase()
       );
   
-  // Get events for the selected hotspot
-  const hotspotEvents = selectedHotspot 
-    ? filteredEvents.slice(0, Math.min(filteredEvents.length, 3)) 
-    : [];
+  // Get events for the selected hotspot - no longer filtering here, delegated to MapView
+  const hotspotEvents = selectedHotspot ? [] : [];
 
   // Load mapbox token, joined events, and browsing lock state from localStorage
   useEffect(() => {
@@ -55,8 +53,42 @@ const Explore = () => {
     }
   }, []);
 
-  // Handle joining events
+  // Check if event time overlaps with already joined events
+  const checkEventOverlap = (eventId: string) => {
+    const newEvent = mockEvents.find(e => e.id === eventId);
+    if (!newEvent) return false;
+    
+    // Convert event times to comparable values (for demo purposes)
+    // In a real app, you would use proper datetime objects
+    const newEventEndTime = newEvent.endTime.replace('Ends at ', '');
+    
+    // Check if any joined event overlaps with the new event
+    for (const joinedEventId of joinedEvents) {
+      const joinedEvent = mockEvents.find(e => e.id === joinedEventId);
+      if (!joinedEvent) continue;
+      
+      const joinedEventEndTime = joinedEvent.endTime.replace('Ends at ', '');
+      
+      // Simple overlap check - in a real app this would be more sophisticated
+      // Using the endTime for demo purposes
+      if (newEventEndTime === joinedEventEndTime) {
+        return true; // Events overlap
+      }
+    }
+    
+    return false; // No overlap
+  };
+
+  // Handle joining events with overlap check
   const handleJoinEvent = (eventId: string) => {
+    // Check for time overlap
+    if (checkEventOverlap(eventId)) {
+      toast.error("Cannot join this event", {
+        description: "You already have another event scheduled for this time",
+      });
+      return;
+    }
+    
     if (!joinedEvents.includes(eventId)) {
       const updatedJoinedEvents = [...joinedEvents, eventId];
       setJoinedEvents(updatedJoinedEvents);
@@ -137,8 +169,10 @@ const Explore = () => {
             selectedHotspot={selectedHotspot}
             setSelectedHotspot={setSelectedHotspot}
             hotspotEvents={hotspotEvents}
+            filteredEvents={visibleEvents}
             mapboxToken={mapboxToken}
             showHeatMap={true}
+            onJoinEvent={handleJoinEvent}
           />
         </TabsContent>
       </Tabs>

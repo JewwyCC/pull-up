@@ -3,7 +3,7 @@ import React from 'react';
 import { MapPin } from 'lucide-react';
 import MapboxMap from '@/components/MapboxMap';
 import EventCard from '@/components/EventCard';
-import { mockHotspots, Event } from '@/data/mockData';
+import { mockHotspots, Event, mockEvents } from '@/data/mockData';
 
 interface MapViewProps {
   selectedHotspot: string | null;
@@ -11,6 +11,8 @@ interface MapViewProps {
   hotspotEvents: Event[];
   mapboxToken: string;
   showHeatMap?: boolean;
+  onJoinEvent?: (eventId: string) => void;
+  filteredEvents: Event[];
 }
 
 const MapView = ({ 
@@ -18,8 +20,28 @@ const MapView = ({
   setSelectedHotspot, 
   hotspotEvents,
   mapboxToken,
-  showHeatMap
+  showHeatMap,
+  onJoinEvent,
+  filteredEvents
 }: MapViewProps) => {
+  // Get the selected hotspot data
+  const selectedHotspotData = selectedHotspot 
+    ? mockHotspots.find(h => h.id === selectedHotspot)
+    : null;
+    
+  // Filter events for the selected hotspot using proximity calculation
+  const hotspotEventsToShow = selectedHotspotData 
+    ? filteredEvents.filter(event => {
+        // Simple proximity filter - this would be more accurate with actual coordinates
+        // but for mock data we'll use the hotspot name in location as a heuristic
+        return event.location.includes(selectedHotspotData.name) || 
+               // For UC Irvine events, also include "UCI" or "UC Irvine" in location
+               (selectedHotspotData.name.includes("UC Irvine") && 
+                (event.location.includes("UCI") || event.location.includes("UC Irvine") || 
+                 event.location.includes("Irvine")));
+      }).slice(0, 3) // Limit to 3 events
+    : [];
+
   return (
     <div className="animate-fade-in">
       <div className="mb-6">
@@ -36,18 +58,28 @@ const MapView = ({
           <div className="flex items-center gap-2 mb-4">
             <MapPin className="w-5 h-5 text-primary" />
             <h2 className="font-semibold">
-              {mockHotspots.find(h => h.id === selectedHotspot)?.name} Area
+              {selectedHotspotData?.name} Area
             </h2>
             <span className="text-sm text-muted-foreground">
-              ({mockHotspots.find(h => h.id === selectedHotspot)?.eventCount} events)
+              ({hotspotEventsToShow.length} events)
             </span>
           </div>
           
-          <div className="grid gap-4">
-            {hotspotEvents.map(event => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
+          {hotspotEventsToShow.length > 0 ? (
+            <div className="grid gap-4">
+              {hotspotEventsToShow.map(event => (
+                <EventCard 
+                  key={event.id} 
+                  event={event} 
+                  onJoinEvent={onJoinEvent}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="p-4 text-center text-muted-foreground bg-muted/30 rounded-lg">
+              No events found in this area
+            </div>
+          )}
         </div>
       )}
     </div>
