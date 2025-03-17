@@ -1,8 +1,7 @@
 
 import React from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 
 interface SearchBarProps {
   searchQuery: string;
@@ -11,18 +10,15 @@ interface SearchBarProps {
 
 const SearchBar = ({ searchQuery, setSearchQuery }: SearchBarProps) => {
   return (
-    <div className="mb-6 flex gap-2">
+    <div className="mb-6 w-full">
       <Input
         type="search"
         placeholder="Search for events..."
-        className="flex-grow bg-card shadow-sm border-input"
+        className="w-full bg-card shadow-sm border-input"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         prefix={<Search className="w-4 h-4 text-muted-foreground" />}
       />
-      <Button variant="outline" size="icon" className="bg-card">
-        <Filter className="w-4 h-4" />
-      </Button>
     </div>
   );
 };

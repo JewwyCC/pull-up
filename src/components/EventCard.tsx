@@ -77,7 +77,7 @@ const EventCard = ({ event, className, onJoinEvent }: EventCardProps) => {
                 <div className="flex items-center text-sm text-primary">
                   <UserCheck className="w-4 h-4 mr-2" />
                   <span className="font-medium">
-                    {mockFriendsParticipating.join(', ')} {mockFriendsParticipating.length === 1 ? 'is' : 'are'} going!
+                    {mockFriendsParticipating.join(', ')} {mockFriendsParticipating.length === 1 ? 'is' : 'are'} there now!
                   </span>
                 </div>
               )}
