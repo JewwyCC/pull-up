@@ -25,7 +25,7 @@ const CategoryFilter = ({ activeCategory, setActiveCategory }: CategoryFilterPro
         {isFilterOpen ? <X className="w-4 h-4" /> : <Filter className="w-4 h-4" />}
         <span>{isFilterOpen ? 'Close' : 'Filter'}</span>
         {activeCategory !== 'all' && (
-          <Badge variant="primary" className="ml-1 text-xs">1</Badge>
+          <Badge variant="default" className="ml-1 text-xs">1</Badge>
         )}
       </Button>
       
