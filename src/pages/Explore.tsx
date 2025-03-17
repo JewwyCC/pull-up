@@ -3,7 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { mockEvents, mockHotspots } from '@/data/mockData';
 import { toast } from 'sonner';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, ArrowUpDown } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Components
 import Header from '@/components/explore/Header';
@@ -12,6 +19,9 @@ import CategoryFilter from '@/components/explore/CategoryFilter';
 import EventListView from '@/components/explore/EventListView';
 import MapView from '@/components/explore/MapView';
 import MyEventsDrawer from '@/components/explore/MyEventsDrawer';
+
+// Ranking types
+type RankingOption = 'recommended' | 'distance' | 'popularity' | 'time';
 
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +32,7 @@ const Explore = () => {
   const [joinedEvents, setJoinedEvents] = useState<string[]>([]);
   const [isMyEventsOpen, setIsMyEventsOpen] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
+  const [rankingOption, setRankingOption] = useState<RankingOption>('recommended');
   
   // Filter events based on category and browsing lock
   const filteredEvents = activeCategory === 'all' 
@@ -120,10 +131,51 @@ const Explore = () => {
     }
   };
 
+  // Rank events based on selected option
+  const rankEvents = (events: typeof mockEvents) => {
+    let rankedEvents = [...events];
+    
+    switch (rankingOption) {
+      case 'recommended':
+        // Sort by trending first, then by attendees
+        rankedEvents.sort((a, b) => {
+          if (a.trending && !b.trending) return -1;
+          if (!a.trending && b.trending) return 1;
+          return b.attendees - a.attendees;
+        });
+        break;
+      case 'distance':
+        // Sort by distance (ascending)
+        rankedEvents.sort((a, b) => {
+          const distanceA = a.distance ? parseFloat(a.distance.replace(' mi', '')) : Infinity;
+          const distanceB = b.distance ? parseFloat(b.distance.replace(' mi', '')) : Infinity;
+          return distanceA - distanceB;
+        });
+        break;
+      case 'popularity':
+        // Sort by attendees (descending)
+        rankedEvents.sort((a, b) => b.attendees - a.attendees);
+        break;
+      case 'time':
+        // Sort by end time (chronologically)
+        rankedEvents.sort((a, b) => {
+          const timeA = a.endTime.replace('Ends at ', '');
+          const timeB = b.endTime.replace('Ends at ', '');
+          return timeA.localeCompare(timeB);
+        });
+        break;
+    }
+    
+    return rankedEvents;
+  };
+
   // If browsing is locked and user has joined events, only show those events
-  const visibleEvents = isLocked && joinedEvents.length > 0
+  const eventsAfterLockFilter = isLocked && joinedEvents.length > 0
     ? filteredEvents.filter(event => joinedEvents.includes(event.id))
     : filteredEvents;
+    
+  // Apply ranking to the filtered events
+  const visibleEvents = rankEvents(eventsAfterLockFilter);
 
   return (
     <div className="min-h-screen pt-6 pb-24 px-4 max-w-2xl mx-auto">
@@ -141,10 +193,27 @@ const Explore = () => {
         setSearchQuery={setSearchQuery} 
       />
       
-      <CategoryFilter 
-        activeCategory={activeCategory} 
-        setActiveCategory={setActiveCategory}
-      />
+      <div className="flex items-center justify-between mb-4">
+        <CategoryFilter 
+          activeCategory={activeCategory} 
+          setActiveCategory={setActiveCategory}
+        />
+        
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+          <Select value={rankingOption} onValueChange={(value) => setRankingOption(value as RankingOption)}>
+            <SelectTrigger className="w-[140px] h-9">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recommended">Recommended</SelectItem>
+              <SelectItem value="distance">Distance</SelectItem>
+              <SelectItem value="popularity">Popularity</SelectItem>
+              <SelectItem value="time">Time</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       
       <Tabs 
         defaultValue="list" 
