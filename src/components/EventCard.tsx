@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { Clock, MapPin, Users } from 'lucide-react';
+import { Clock, MapPin, Users, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PullupButton from './PullupButton';
 import { Link } from 'react-router-dom';
 import { Event } from '@/data/mockData';
+import { Badge } from '@/components/ui/badge';
 
 interface EventCardProps {
   event: Event;
@@ -13,10 +14,17 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event, className, onJoinEvent }: EventCardProps) => {
+  // Mock data to show friends participation - in a real app, this would come from props or context
+  const mockFriendsParticipating = ['Alex Johnson', 'Taylor Reed'].filter(() => Math.random() > 0.5);
+  const mockGroupsParticipating = ['Basketball Enthusiasts', 'Tech Talks UCIrvine'].filter(() => Math.random() > 0.6);
+  
+  const hasFriendsOrGroups = mockFriendsParticipating.length > 0 || mockGroupsParticipating.length > 0;
+
   return (
     <div 
       className={cn(
         'glass-card rounded-2xl overflow-hidden card-transition animate-scale-in',
+        hasFriendsOrGroups && 'border-2 border-primary/30',
         className
       )}
     >
@@ -61,6 +69,30 @@ const EventCard = ({ event, className, onJoinEvent }: EventCardProps) => {
             <Users className="w-4 h-4 mr-2 text-primary" />
             <span>{event.attendees} attending</span>
           </div>
+          
+          {/* Friends & Groups participating section */}
+          {hasFriendsOrGroups && (
+            <div className="mt-1 flex flex-col gap-1">
+              {mockFriendsParticipating.length > 0 && (
+                <div className="flex items-center text-sm text-primary">
+                  <UserCheck className="w-4 h-4 mr-2" />
+                  <span className="font-medium">
+                    {mockFriendsParticipating.join(', ')} {mockFriendsParticipating.length === 1 ? 'is' : 'are'} going!
+                  </span>
+                </div>
+              )}
+              
+              {mockGroupsParticipating.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-0.5">
+                  {mockGroupsParticipating.map((group, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs py-0.5">
+                      {group}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
         
         <PullupButton eventId={event.id} onJoinEvent={onJoinEvent} />
