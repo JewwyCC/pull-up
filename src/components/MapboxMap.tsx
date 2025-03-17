@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -24,7 +23,7 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<{[key: string]: mapboxgl.Marker}>({});
-  const [mapboxToken, setMapboxToken] = useState<string>('');
+  const [mapboxToken, setMapboxToken] = useState<string>('pk.eyJ1IjoiamVycnljMTIxMzgiLCJhIjoiY203dHQwbmV6MTJkZzJsb2kwemJ5aDVyayJ9.flwGmP63F9JENhRvWjc94w');
   const [selectedHotspot, setSelectedHotspot] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -63,7 +62,7 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
 
   // Initialize the map once we have the token
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken || map.current) return;
+    if (!mapContainer.current || map.current) return;
 
     mapboxgl.accessToken = mapboxToken;
     
@@ -262,37 +261,6 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
 
   return (
     <div className={cn('relative overflow-hidden rounded-2xl border border-border shadow-lg', className)}>
-      {/* Token input field if no token is set */}
-      {!mapboxToken && (
-        <div className="absolute inset-0 z-50 bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center p-4">
-          <div className="max-w-md w-full glass-card p-6 rounded-xl">
-            <h3 className="text-lg font-medium mb-4">Enter your Mapbox token</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              To use the map feature, you need a Mapbox public token. Get yours at 
-              <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary ml-1">
-                mapbox.com
-              </a>
-            </p>
-            <input
-              type="text"
-              placeholder="pk.eyJ1Ijoie3VzZXJuYW1lfSIsImEiOiJ..."
-              className="w-full px-4 py-2 rounded-md bg-muted text-foreground border border-input mb-4"
-              onChange={(e) => setMapboxToken(e.target.value)}
-            />
-            <button
-              className="w-full pullup-button"
-              onClick={() => {
-                if (mapboxToken) {
-                  localStorage.setItem('mapbox_token', mapboxToken);
-                }
-              }}
-            >
-              Save Token
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Map container */}
       <div ref={mapContainer} className="w-full h-full" />
 
