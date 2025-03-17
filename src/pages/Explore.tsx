@@ -34,14 +34,19 @@ const Explore = () => {
   const [isLocked, setIsLocked] = useState(false);
   const [rankingOption, setRankingOption] = useState<RankingOption>('recommended');
   
-  // Filter events based on category and browsing lock
-  const filteredEvents = activeCategory === 'all' 
-    ? mockEvents 
-    : mockEvents.filter(event => 
-        event.category?.toLowerCase() === activeCategory.toLowerCase()
-      );
+  // Filter events based on search query and category
+  const filteredBySearchAndCategory = mockEvents.filter(event => {
+    const matchesCategory = activeCategory === 'all' || 
+      (event.category?.toLowerCase() === activeCategory.toLowerCase());
+      
+    const matchesSearch = !searchQuery || 
+      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.location.toLowerCase().includes(searchQuery.toLowerCase());
+      
+    return matchesCategory && matchesSearch;
+  });
   
-  // Get events for the selected hotspot - no longer filtering here, delegated to MapView
+  // Get events for the selected hotspot
   const hotspotEvents = selectedHotspot ? [] : [];
 
   // Load mapbox token, joined events, and browsing lock state from localStorage
@@ -171,8 +176,8 @@ const Explore = () => {
 
   // If browsing is locked and user has joined events, only show those events
   const eventsAfterLockFilter = isLocked && joinedEvents.length > 0
-    ? filteredEvents.filter(event => joinedEvents.includes(event.id))
-    : filteredEvents;
+    ? filteredBySearchAndCategory.filter(event => joinedEvents.includes(event.id))
+    : filteredBySearchAndCategory;
     
   // Apply ranking to the filtered events
   const visibleEvents = rankEvents(eventsAfterLockFilter);

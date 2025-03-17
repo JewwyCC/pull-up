@@ -53,7 +53,7 @@ const MapView = ({
         />
       </div>
       
-      {selectedHotspot && (
+      {selectedHotspot ? (
         <div className="mb-6 animate-fade-in">
           <div className="flex items-center gap-2 mb-4">
             <MapPin className="w-5 h-5 text-primary" />
@@ -78,6 +78,33 @@ const MapView = ({
           ) : (
             <div className="p-4 text-center text-muted-foreground bg-muted/30 rounded-lg">
               No events found in this area
+            </div>
+          )}
+        </div>
+      ) : (
+        // Show all events when no hotspot is selected
+        <div className="mb-6 animate-fade-in">
+          <div className="flex items-center gap-2 mb-4">
+            <MapPin className="w-5 h-5 text-primary" />
+            <h2 className="font-semibold">All Events</h2>
+            <span className="text-sm text-muted-foreground">
+              ({filteredEvents.length} events)
+            </span>
+          </div>
+          
+          {filteredEvents.length > 0 ? (
+            <div className="grid gap-4">
+              {filteredEvents.slice(0, 5).map(event => (
+                <EventCard 
+                  key={event.id} 
+                  event={event} 
+                  onJoinEvent={onJoinEvent}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="p-4 text-center text-muted-foreground bg-muted/30 rounded-lg">
+              No events found
             </div>
           )}
         </div>
