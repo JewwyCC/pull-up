@@ -1,11 +1,20 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Map, Users, User } from 'lucide-react';
+import { Map, Users, User, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
 
 const Navbar = () => {
   const location = useLocation();
+  const { logout, isAuthenticated } = useAuth();
+  
+  // Don't show navbar on auth page
+  if (location.pathname === '/auth') return null;
+  
+  // Only show navbar for authenticated users
+  if (!isAuthenticated) return null;
   
   const navItems = [
     { path: '/explore', icon: Map, label: 'Explore' },
@@ -28,6 +37,15 @@ const Navbar = () => {
           <span className="text-xs font-medium">{item.label}</span>
         </Link>
       ))}
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="flex flex-col items-center gap-1 rounded-full" 
+        onClick={logout}
+      >
+        <LogOut className="w-5 h-5" />
+        <span className="text-xs font-medium">Logout</span>
+      </Button>
     </nav>
   );
 };
