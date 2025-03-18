@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -28,6 +29,7 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const markersAdded = useRef(false);
 
   // Function to handle getting user location
   useEffect(() => {
@@ -122,12 +124,19 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
       zoom: 12,
       speed: 2
     });
+    
+    // Ensure we add hotspot markers after adding user location
+    if (!markersAdded.current) {
+      addHotspotMarkers();
+    }
   }, [userLocation, isMapLoaded]);
 
-  // Add hotspot markers and heat map
-  useEffect(() => {
+  // Function to add hotspot markers - separated for clarity
+  const addHotspotMarkers = () => {
     if (!map.current || !isMapLoaded) return;
-
+    
+    console.log("Adding hotspot markers", hotspots.length);
+    
     // Remove existing markers
     Object.values(markers.current).forEach(marker => marker.remove());
     markers.current = {};
@@ -240,6 +249,15 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
 
       markers.current[hotspot.id] = marker;
     });
+    
+    markersAdded.current = true;
+  };
+
+  // Ensure hotspots are added to the map when the component props change
+  useEffect(() => {
+    if (map.current && isMapLoaded) {
+      addHotspotMarkers();
+    }
   }, [hotspots, selectedHotspot, isMapLoaded, showHeatMap]);
 
   const handleSelectHotspot = (id: string) => {
