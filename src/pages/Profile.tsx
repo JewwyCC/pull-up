@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Settings, Camera, Calendar, Map, Heart, Edit, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Mock data
 const interests = [
@@ -19,6 +19,8 @@ const interests = [
 ];
 
 const Profile = () => {
+  const { logout } = useAuth();
+  
   return (
     <div className="min-h-screen pt-6 pb-24 px-4 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -109,7 +111,11 @@ const Profile = () => {
         </div>
         
         <div className="p-4">
-          <Button variant="ghost" className="w-full text-destructive justify-start px-3">
+          <Button 
+            variant="ghost" 
+            className="w-full text-destructive justify-start px-3"
+            onClick={logout}
+          >
             <LogOut className="w-5 h-5 mr-3" />
             Sign Out
           </Button>
