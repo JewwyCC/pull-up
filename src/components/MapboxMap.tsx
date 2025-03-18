@@ -84,7 +84,13 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
     );
 
     map.current.on('load', () => {
+      console.log("Map loaded");
       setIsMapLoaded(true);
+      
+      // Immediately try to add markers when map loads
+      if (hotspots.length > 0) {
+        addHotspotMarkers();
+      }
     });
 
     return () => {
@@ -100,6 +106,8 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
   useEffect(() => {
     if (!map.current || !isMapLoaded || !userLocation) return;
 
+    console.log("Adding user location marker");
+    
     // Add user location marker with pulsing effect
     const userMarkerElement = document.createElement('div');
     userMarkerElement.className = 'user-location-marker';
@@ -126,14 +134,22 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
     });
     
     // Ensure we add hotspot markers after adding user location
-    if (!markersAdded.current) {
-      addHotspotMarkers();
-    }
+    // The delay helps ensure the map is fully ready for markers
+    setTimeout(() => {
+      if (!markersAdded.current && hotspots.length > 0) {
+        console.log("Trying to add markers after user location");
+        addHotspotMarkers();
+      }
+    }, 500);
+    
   }, [userLocation, isMapLoaded]);
 
   // Function to add hotspot markers - separated for clarity
   const addHotspotMarkers = () => {
-    if (!map.current || !isMapLoaded) return;
+    if (!map.current || !isMapLoaded) {
+      console.log("Cannot add markers, map not ready", {mapExists: !!map.current, isLoaded: isMapLoaded});
+      return;
+    }
     
     console.log("Adding hotspot markers", hotspots.length);
     
@@ -248,6 +264,7 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
         .addTo(map.current!);
 
       markers.current[hotspot.id] = marker;
+      console.log(`Added marker for hotspot ${hotspot.id}`);
     });
     
     markersAdded.current = true;
@@ -255,7 +272,10 @@ const MapboxMap = ({ className, hotspots, onSelectHotspot, showHeatMap = false }
 
   // Ensure hotspots are added to the map when the component props change
   useEffect(() => {
-    if (map.current && isMapLoaded) {
+    if (map.current && isMapLoaded && hotspots.length > 0) {
+      console.log("Hotspots changed, re-adding markers");
+      // Reset this flag to force re-adding markers
+      markersAdded.current = false;
       addHotspotMarkers();
     }
   }, [hotspots, selectedHotspot, isMapLoaded, showHeatMap]);
